@@ -1,5 +1,5 @@
-import { App, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import {SampleModal} from "./component/sampleModal"
+import { App, Notice, Plugin, PluginSettingTab, Setting ,Menu,TFolder } from 'obsidian';
+import {SampleModal} from "./component/SampleModal"
 
 
 interface MyPluginSettings {
@@ -17,7 +17,6 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			new SampleModal(this.app).open();
 			new Notice('This is a notice!');
 		});
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -29,7 +28,21 @@ export default class MyPlugin extends Plugin {
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
 			console.log('click', evt);
 		});
-
+		this.registerEvent(
+			this.app.workspace.on('file-menu', (menu: Menu, file) => {
+			  // Check if the file is a folder
+			  if (file instanceof TFolder) {
+				menu.addItem((item) => {
+				  item
+					.setTitle('태그달기') // Name of the option
+					.setIcon('folder') // Optional: Add an icon
+					.onClick(() => {
+						new SampleModal(this.app,file).open();
+					});
+				});
+			  }
+			})
+		  );
 	}
 
 	onunload() {
